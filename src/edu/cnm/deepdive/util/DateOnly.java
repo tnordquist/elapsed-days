@@ -2,37 +2,44 @@ package edu.cnm.deepdive.util;
 
 public class DateOnly {
 
-  public static int elapsedDays(int year, int month, int day) {
+
+  static int normYear = 0;
+  static int normMonthYear = 0;
+  static int normDay = 0;
+  static int normMonth = 0;
+
+  public static int elapsedDays(int normYear, int month, int day) {
 
     final int STANDARD_DAYS_YEAR = 365;
-     int GROUND_ZERO = 1970;
-    int days = day - 1;
-    int tempYear = year;
+    int GROUND_ZERO = 1970;
+
+    normMonthToYears(normYear, month, day);
+    int days = normDay - 1;
+    int tempYear = normYear;
     int leapDays = 0;
 
-    if(year<GROUND_ZERO){
-      GROUND_ZERO = year;
-      year = 1970;
+    if (normYear < GROUND_ZERO) {
+      GROUND_ZERO = normYear;
+      normYear = 1970;
     }
-    for (int yr = GROUND_ZERO; yr < year; ++yr) {
+    for (int yr = GROUND_ZERO; yr < normYear; ++yr) {
       if (isLeapYear(yr)) {
         leapDays++;
       }
-      if (month < 1) {
+      if (normMonth < 1) {
         leapDays--;
       }
     }
 
     GROUND_ZERO = 1970;
-    year=tempYear;
+    normYear = tempYear;
 
-
-    int yearDays = (year - GROUND_ZERO) * STANDARD_DAYS_YEAR;
-    if(year>=GROUND_ZERO) {
-      days += yearDays + leapDays + monthDays(month);
+    int yearDays = (normYear - GROUND_ZERO) * STANDARD_DAYS_YEAR;
+    if (normYear >= GROUND_ZERO) {
+      days += yearDays + leapDays + monthDays(normMonth);
       return days;
     } else {
-      days = yearDays - leapDays + days + monthDays(month);
+      days = yearDays - leapDays + days + monthDays(normMonth);
       return days;
     }
   }
@@ -55,5 +62,29 @@ public class DateOnly {
   private static boolean isLeapYear(int year) {
     return ((year % 400 == 0) || ((year % 4 == 0) && (year % 100 != 0)));
   }
+
+  private static void normMonthToYears(int year, int month, int day) {
+
+    if ((month > 11 || month < -11)) {
+      if (month > 11) {
+        normMonthYear = month / 11;
+      } else if (month < 0) {
+        normMonthYear = month / -11;
+      }
+      normYear = normMonthYear + year;
+      normMonth = month % 11;
+
+    }
+
+    if (day > 364) {
+      normMonth = day / 364 + normMonth;
+      normDay = day % 364;
+    }
+
+    year = normYear;
+    month = normMonth;
+    day = normDay;
+  }
+
 
 }
